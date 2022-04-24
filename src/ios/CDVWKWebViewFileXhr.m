@@ -68,6 +68,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation CDVWKWebViewFileXhr
 
+-(void) syncWKtoNSHTTPCookieStore {
+    @try {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            WKWebsiteDataStore* dataStore = [WKWebsiteDataStore defaultDataStore];
+            WKHTTPCookieStore* cookieStore = dataStore.httpCookieStore;
+
+            [cookieStore getAllCookies:^(NSArray* cookies) {
+                NSHTTPCookie* cookie;
+                for(cookie in cookies) {
+                    NSMutableDictionary* cookieDict = [cookie.properties mutableCopy];
+                    [cookieDict removeObjectForKey:NSHTTPCookieDiscard];
+                    NSHTTPCookie* newCookie = [NSHTTPCookie cookieWithProperties:cookieDict];
+                    [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:newCookie];
+
+                }
+            }];
+        });
+    } @catch (NSException *exception) {
+    }
+}
+
 -(void) pluginInitialize {
     [super pluginInitialize];
     
@@ -331,6 +352,8 @@ NS_ASSUME_NONNULL_BEGIN
  * object.  The second argument is a java object defining the HTTP result.
  */
 - (void) performNativeXHR:(NSDictionary<NSString *, id> *) body inWebView:(WKWebView *) webView {
+    
+    [self syncWKtoNSHTTPCookieStore];
     
     NSString *requestId = [body cdvwkStringForKey:@"id"];
     NSString *callbackFunction = [body cdvwkStringForKey:@"callback"];
