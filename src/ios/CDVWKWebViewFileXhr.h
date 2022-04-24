@@ -44,6 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)readAsText:(CDVInvokedUrlCommand*)command;
 - (void)readAsArrayBuffer:(CDVInvokedUrlCommand*)command;
 - (void) getConfig:(CDVInvokedUrlCommand*)command;
+- (void) syncWKtoNSHTTPCookieStore;
 
 @property (nonatomic, assign) BOOL  allowsInsecureLoads;
 @property (nonatomic, strong) NSString * interceptRemoteRequests;
